@@ -1,0 +1,6 @@
+{
+  "name": "presentation-animator",
+  "version": "1.0.0",
+  "description": "Motion-graphic reels instead of PowerPoint slides: dark neon three.js/GLSL animations at 1920×1080, 60 fps, presented live in the browser and exportable to MP4.",
+  "keywords": ["presentation", "slides", "motion-graphics", "three.js", "glsl", "animation"]
+}

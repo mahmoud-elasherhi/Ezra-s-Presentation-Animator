@@ -1,0 +1,15 @@
+{
+  "name": "presentation-animator",
+  "private": true,
+  "type": "module",
+  "description": "Neon motion-graphics engine (three.js + GLSL, 1920x1080 @ 60 fps) with frame-exact MP4 export",
+  "scripts": {
+    "start": "node serve.mjs"
+  },
+  "dependencies": {
+    "mp4-muxer": "^5.2.2",
+    "three": "^0.187.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  }
+}

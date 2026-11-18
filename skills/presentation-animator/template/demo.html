@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  body {
+    display: grid; place-items: center;
+    font: 12px/1.3 "JetBrainsMono Nerd Font", "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    color: #cfcfd6;
+  }
+  /* The canvas is always rendered at exactly 1920x1080; CSS only scales the preview. */
+  #c {
+    display: block;
+    width: min(100vw, calc(100vh * 16 / 9));
+    height: auto;
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+  #hud {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    width: min(1100px, calc(100vw - 28px));
+    display: grid; grid-template-columns: auto auto 1fr auto; gap: 12px; align-items: center;
+    padding: 9px 12px;
+    background: rgba(12, 12, 18, .78);
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 12px;
+    backdrop-filter: blur(14px);
+    transition: opacity .35s ease;
+    user-select: none;
+  }
+  body.idle #hud, body.clean #hud, body.idle #hint, body.clean #hint { opacity: 0; pointer-events: none; }
+  #hud button {
+    font: inherit; color: #e9e9f2; background: rgba(255, 255, 255, .07);
+    border: 1px solid rgba(255, 255, 255, .12); border-radius: 8px;
+    height: 28px; padding: 0 11px; cursor: pointer;
+  }
+  #hud button:hover { background: rgba(255, 255, 255, .14); }
+  #hud button:focus-visible { outline: 2px solid #5bcefa; outline-offset: 2px; }
+  #play { width: 40px; padding: 0; }
+  #time { font-variant-numeric: tabular-nums; color: #9d9dab; white-space: nowrap; }
+  #track { display: grid; gap: 5px; min-width: 0; }
+  #chapter { color: #e9e9f2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #bar {
+    position: relative; height: 12px; cursor: pointer;
+  }
+  #bar::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 2px;
+    background: rgba(255, 255, 255, .14); border-radius: 2px;
+  }
+  #fill {
+    position: absolute; left: 0; top: 5px; height: 2px; width: 0;
+    background: linear-gradient(90deg, #5bcefa, #f5a9b8, #fff);
+    border-radius: 2px;
+  }
+  .tick { position: absolute; top: 2px; width: 1px; height: 8px; background: rgba(255, 255, 255, .35); }
+  #hint {
+    position: fixed; left: 50%; top: 12px; transform: translateX(-50%);
+    color: #7c7c8a; white-space: nowrap; transition: opacity .35s ease;
+    background: rgba(12, 12, 18, .6); padding: 5px 10px; border-radius: 8px;
+  }
+  #err {
+    position: fixed; inset: 0; display: none; place-items: center; padding: 40px;
+    color: #ff8a8a; white-space: pre-wrap; background: rgba(0, 0, 0, .85);
+  }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./node_modules/three/build/three.module.js",
+    "mp4-muxer": "./node_modules/mp4-muxer/build/mp4-muxer.mjs"
+  }
+}
+</script>
+</head>
+<body>
+  <canvas id="c" width="1920" height="1080"></canvas>
+
+  <div id="hint">Space play/pause · ← → chapters · 1–9 jump · , . frame step · R restart · H hide UI · F fullscreen · E export MP4</div>
+
+  <div id="hud">
+    <button id="play" title="Play / pause (Space)">❚❚</button>
+    <div id="time">00:00.00</div>
+    <div id="track">
+      <div id="chapter">&nbsp;</div>
+      <div id="bar"><div id="fill"></div></div>
+    </div>
+    <button id="export" title="Render every frame offline and save a 1920×1080 60 fps H.264 MP4 (E)">Export MP4</button>
+  </div>
+
+  <div id="err"></div>
+  <script type="module" src="./scenes/demo.js"></script>
+</body>
+</html>

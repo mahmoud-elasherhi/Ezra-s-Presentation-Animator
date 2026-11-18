@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentation</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  iframe {
+    position: fixed; inset: 0; width: 100%; height: 100%; border: 0;
+    pointer-events: none; /* keys always come to this page, which passes them on */
+    opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s;
+  }
+  iframe.on { opacity: 1; visibility: visible; transition: opacity .45s ease; }
+  #hint {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    font: 13px/1 "JetBrainsMono Nerd Font", ui-monospace, Menlo, monospace; color: #5d5d6c;
+    transition: opacity .6s ease;
+  }
+  #hint.gone { opacity: 0; }
+</style>
+</head>
+<body>
+<div id="hint">→ start · ← → chapters · 1–9 jump · Space pause · F fullscreen</div>
+<script>
+  // The sequences, in presentation order. Each runs in live mode inside its own frame:
+  // it plays to the next checkpoint and waits; at its last checkpoint the next → hands over.
+  const ORDER = ['demo.html']; // one entry per clip page, in order; add ?params as needed
+  const frames = ORDER.map((page, i) => {
+    const f = document.createElement('iframe');
+    f.src = `${page}${page.includes('?') ? '&' : '?'}embed${i ? '&suspended' : ''}`;
+    document.body.appendChild(f);
+    return f;
+  });
+  let cur = 0;
+  frames[0].classList.add('on');
+
+  const send = (i, msg) => frames[i].contentWindow?.postMessage(msg, '*');
+  // Later frames sit on top. Going forward the new clip fades in over the old one's last frame
+  // (no dip to black, so a clip can hand over seamlessly); going back the old one fades away.
+  function go(to, at) {
+    if (to < 0 || to >= frames.length || to === cur) return;
+    const from = cur;
+    send(from, { type: 'suspend' });
+    cur = to;
+    if (to > from) {
+      frames[to].classList.add('on');
+      setTimeout(() => cur !== from && frames[from].classList.remove('on'), 500);
+    } else {
+      frames[to].style.transition = 'none';
+      frames[to].classList.add('on');
+      frames[to].offsetWidth; // apply instantly, then restore the transition for later
+      frames[to].style.transition = '';
+      frames[from].classList.remove('on');
+    }
+    send(cur, { type: 'activate', at, play: at === 'start' });
+  }
+  addEventListener('message', (ev) => {
+    if (ev.source !== frames[cur].contentWindow) return;
+    if (ev.data?.type === 'reel-next') go(cur + 1, 'start');
+    else if (ev.data?.type === 'reel-prev') go(cur - 1, 'end');
+  });
+
+  const hint = document.getElementById('hint');
+  addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    hint.classList.add('gone');
+    if (e.key === 'f' || e.key === 'F') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    } else {
+      send(cur, { type: 'key', key: e.key, shiftKey: e.shiftKey });
+    }
+    e.preventDefault();
+  });
+  window.show = { go, get current() { return ORDER[cur]; }, frames };
+</script>
+</body>
+</html>

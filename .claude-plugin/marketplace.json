@@ -1,0 +1,11 @@
+{
+  "name": "presentation-animator",
+  "owner": { "name": "presentation-animator" },
+  "plugins": [
+    {
+      "name": "presentation-animator",
+      "source": "./",
+      "description": "Motion-graphic reels instead of PowerPoint slides: dark neon three.js/GLSL animations presented live in the browser."
+    }
+  ]
+}
